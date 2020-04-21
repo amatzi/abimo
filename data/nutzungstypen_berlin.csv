@@ -1,0 +1,24 @@
+Typ_Nutzung;Typ_nutzung_klar
+10;Wohnnutzung
+70;Wochenendhaus- und kleingartenähnliche Nutzung
+21;Mischnutzung
+30;Kerngebietsnutzung
+40;Gewerbe- und Industrienutzung, großflächiger Einzelhandel
+50;Gemeinbedarfs- und Sondernutzung
+60;Ver- und Entsorgung
+80;Verkehrsfläche (ohne Straßen)
+90;Baustelle
+100;Wald
+121;Grünland
+122;Ackerland
+130;Park / Grünfläche
+140;Stadtplatz / Promenade
+150;Friedhof
+160;Kleingartenanlage
+171;Brachfläche
+172;Brachfläche
+173;Brachfläche
+190;Sportnutzung
+200;Baumschule / Gartenbau
+110;Gewässer
+;Straßen

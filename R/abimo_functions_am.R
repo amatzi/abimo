@@ -96,7 +96,7 @@ ABIMO_comb_in_out <- function (
 #'
 #' @examples
 #'
-write.dbf.ABIMO <- function (
+write.dbf.abimo <- function (
   df_name,
   new_dbf
 )
@@ -131,79 +131,4 @@ appendSubToFile <- function (
 
 
 
-# read_evaporation_matrix_from_url ---------------------------------------------
-read_evaporation_matrix_from_url <- function(url)
-{
-  stopifnot(is.character(url), length(url) == 1L)
-  
-  file_name <- basename(url)
-  
-  file <- file.path(tempdir(), file_name)
-  
-  download.file(url, file)
-  
-  con <- gzfile(file)
-  
-  on.exit(close(con))
-  
-  text <- readLines(con)
-  
-  year_month <- kwb.utils::extractSubstring("(\\d{4})(\\d{2})", file_name, 1:2)
-  
-  extract_date_part <- function(i) as.integer(year_month[[i]])
-  
-  structure(
-    as.matrix(read.table(text = text[-(1:6)])),
-    header = text[1:6],
-    year = extract_date_part(1L),
-    month = extract_date_part(2L)
-  )
-}
-
-# get geographical "stamp" for Berlin area
-Berlin_DWD_mask <- function()
-{
-  #DWD matrix filled with NA
-  DWD_dim <- matrix(NA, nrow = 866, ncol = 654)
-  
-  #get Berlin coordinates...I did not find out how to link to the file I uploaded!!!
-  Berlin_coordinates <- foreign::read.dbf('C:/Aendu_lokal/ABIMO_Paper/Daten/Karten/Hilfsgrid_DWD/Grid_Berlin_DWD.dbf')[,6:7]
-  
-  #set Berlin cells to 1 
-  Berlin_matrix <- DWD_dim
-  
-  for (i in 1:length(Berlin_coordinates$row)) {
-    Berlin_matrix[Berlin_coordinates$row[i], Berlin_coordinates$col[i]] <- 1
-  }
-  
-  Berlin_matrix
-  
-}
-
-# calculate stats of potential evaporation for geographical subset
-evaporation_stats <- function(evaporation_matrices,
-                              file_info,
-                              geo_mask)
-{
-  pot_evap_stat <- file_info
-  
-  
-  for (i in 1:length(evaporation_matrices)) {
-    
-    #keep only Berlin grid cells  
-    Berlin_values <- evaporation_matrices[[i]] * geo_mask
-    
-    #correct unit to mm
-    Berlin_values <- Berlin_values / 10
-    
-    pot_evap_stat$mean[i] <- mean(Berlin_values, na.rm = TRUE)
-    pot_evap_stat$sd[i] <- sd(Berlin_values, na.rm = TRUE)
-    pot_evap_stat$min[i] <- min(Berlin_values, na.rm = TRUE)
-    pot_evap_stat$max[i] <- max(Berlin_values, na.rm = TRUE)
-    
-  }
-  
-  pot_evap_stat
-  
-}
 

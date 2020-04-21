@@ -1,0 +1,53 @@
+Typ;Typ_klar
+1;Dichte Blockbebauung, geschlossener Hinterhof (1870er - 1918), 5 - 6-geschossig
+2;Geschlossene Blockbebauung, Hinterhof (1870er - 1918), 5-geschossig
+3;Geschlossene und halboffene Blockbebauung, Schmuck- und Gartenhof (1870er - 1918), 4-geschossig
+6;Mischbebauung, halboffener und offener Schuppenhof, 2 - 4-geschossig
+10;Blockrandbebauung mit Großhöfen (1920er - 1940er), 2 - 5-geschossig
+72;Parallele Zeilenbebauung mit architektonischem Zeilengrün (1920er - 1930er), 2 - 5-geschossig
+8;Heterogene, innerstädtische Mischbebauung, Lückenschluss nach 1945
+7;Entkernte Blockrandbebauung, Lückenschluss nach 1945
+73;Geschosswohnungsbau der 1990er Jahre und jünger
+9;Großsiedlung und Punkthochhäuser (1960er - 1990er), 4 - 11-geschossig und mehr
+11;Freie Zeilenbebauung mit landschaftlichem Siedlungsgrün (1950er - 1970er), 2 - 6-geschossig
+25;Verdichtung im Einzelhausgebiet, Mischbebauung mit Garten und halbprivater Umgrünung (1870er bis heute)
+21;Dörfliche Mischbebauung
+24;Villen und Stadtvillen mit parkartigen Gärten (überwiegend 1870er - 1945)
+22;Reihen- und Doppelhäuser mit Gärten
+23;Freistehende Einfamilienhäuser mit Gärten
+59;Wochenendhaus- und kleingartenähnliches Gebiet
+29;Kerngebiet
+31;Gewerbe- und Industriegebiet, großflächiger Einzelhandel, dichte Bebauung
+38;Mischgebiet ohne Wohngebietscharakter, dichte Bebauung
+30;Gewerbe- und Industriegebiet, großflächiger Einzelhandel, geringe Bebauung
+33;Mischgebiet ohne Wohngebietscharakter, geringe Bebauung
+32;Ver- und Entsorgung
+92;Bahnhof und Bahnanlagen ohne Gleiskörper
+99;Gleiskörper
+91;Parkplatz
+94;Sonstige Verkehrsfläche
+93;Flughafen
+43;Verwaltung
+45;Kultur
+41;Sicherheit und Ordnung
+12;Altbau-Schule (Baujahr vor 1945)
+13;Neubau-Schule (Baujahr nach 1945)
+44;Hochschule und Forschung
+47;Kindertagesstätte
+51;Sonstige Jugendeinrichtung
+58;Campingplatz
+60;Sonstiges und heterogenes Gemeinbedarfs- und Sondergebiet
+49;Kirche
+46;Krankenhaus
+98;Baustelle
+54;Stadtplatz / Promenade
+17;Sportanlage, gedeckt
+16;Sportanlage, ungedeckt
+36;Baumschule / Gartenbau
+37;Kleingartenanlage
+53;Park / Grünfläche
+27;Friedhof
+57;Brachfläche
+56;Landwirtschaft
+55;Wald
+100;Gewässer

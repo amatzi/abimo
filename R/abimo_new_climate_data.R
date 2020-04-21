@@ -1,6 +1,7 @@
 # prepare climate data for ABIMO 1991-2019
 
-source(file = 'C:/R_Development/trunk/RScripts/_OTHERS/ABIMO_AM/ABIMO_functions_am.R')
+source("R/abimo_functions_am.R")
+source(system.file("extdata/load_evaporation.R", package = "kwb.dwd"))
 
 ###get potential evaporation data-----------------------------------
 
@@ -30,12 +31,12 @@ head(file_info)
 str(evaporation_matrices[[1]])
 
 # Get Berlin matrix, same size as DWD evpo matrix (Berlin grid cells set to 1, rest of cells = NA)
-Berlin_DWD_mask <- Berlin_DWD_mask()
+berlin_dwd_mask <- get_berlin_dwd_mask() 
 
 # calculate monthly stats for Berlin
-Berlin_evap_monthly <- evaporation_stats(evaporation_matrices = evaporation_matrices,
+berlin_evap_monthly <- evaporation_stats(evaporation_matrices = evaporation_matrices,
                                          file_info = file_info,
-                                         geo_mask = Berlin_DWD_mask)
+                                         geo_mask = berlin_dwd_mask)
 
 ###get precipitation data---------------------------------------------
 
@@ -92,7 +93,7 @@ Berlin_climate_monthly$MORR_403[Berlin_climate_monthly$MORR_403 == -999.0] <- 0
 
 
 
-###assemble ABIMO input values-------------------
+###assemble and write ABIMO input values-------------------
 
 #remove last year if not completed
 months_per_year <- aggregate(x = Berlin_climate_monthly$year, 
@@ -126,5 +127,4 @@ ABIMO_climate_data$pot_ev_sum <- aggregate(x= Berlin_climate_monthly_wholeyears$
                                           by = list(Berlin_climate_monthly_wholeyears$year[index_summer]),
                                           FUN = 'sum')[,2]
 
-write.csv(ABIMO_climate_data, file = 'C:/Aendu_lokal/ABIMO_Paper/Daten/DWD/Regen/ABIMO_climate_data.csv', 
-          sep = ';', dec = '.')
+write.csv(ABIMO_climate_data, file = 'C:/Aendu_lokal/ABIMO_Paper/Daten/DWD/Regen/ABIMO_climate_data.csv')
