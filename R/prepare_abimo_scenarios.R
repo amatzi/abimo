@@ -78,7 +78,7 @@ for (i in seq_along(climate_data$year)) {
     dir.create(file.path(dbf_path))
   }
   
-  foreign::write.dbf(x_in_year, file = file.path(dbf_path, dbf_name))
+  write.dbf.abimo(df_name = x_in_year, new_dbf = file.path(dbf_path, dbf_name))
   
 }
 

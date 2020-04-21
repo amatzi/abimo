@@ -131,4 +131,121 @@ appendSubToFile <- function (
 
 
 
+#' add ISU5 ID to dbf file from geoportal 
+#'
+#' the ID is an unambiguous identifier   
+#' for all blocks of the Berlin Geoportal
+#' but is usually hidden
+#'
+#' @param x_no_ID data.frame created from dbf file, downloaded from Berlin geoportal
+#' @param ID_dbf path of dbf file including ids, default is set to local folder with ISU5-Ids
+#' 
+#' @return data.frame of x_no_ID with a new column "ID"
+#'
+#' @examples
+#'
+add_ISU5_ID <- function (
+  x_no_ID = x_geoportal, 
+  ID_dbf = "C:/Aendu_lokal/ABIMO_Paper/Daten/Karten/Basis_ISU5_Daten_2015/ISU5_ID.dbf"
+)
+{
+  #read ISU5 dbf-file
+  x_ID <- foreign::read.dbf(file = ID_dbf, as.is = TRUE)
+  
+  #combine files
+  y <- cbind(x_ID, x_no_ID)
+  
+  y
+  
+}
+
+#' Compares ABIMO-output-file to reference (or other ABIMO output file) 
+#'
+#' Compares two ABIMO-output-files by 
+#' plotting parameters compared to 1:1 line into pdf-File and by
+#' doing a simple column statistics.
+#'
+#' @param x_reference reference data frame with ABIMO output (can be ABIMO output or downloaded from Berlin geoportal)
+#' @param x_new new ABIMO output to be compared to reference
+#' 
+#' @return data.frame of column statistics, also opens 1:1 plot as pdf
+#'
+#' @examples
+#'
+abimo_compare_output <- function (
+  x_reference,
+  x_new
+)
+{
+  #Reduktion auf Vergleichs-Spalten
+  comp_names <- c("CODE", "R", "VERDUNSTUN", "ROW", "RI")
+  x_reference <- x_reference[,comp_names]
+  x_new <- x_new[,comp_names]
+  
+  #Berechnen der absoluten und prozentualen Differenz aller numerischen Spalten
+  x_diff <- x_reference[2:5]-x_new[2:5]
+  x_diff_perc <- abs(x_diff[1:4])/x_reference[2:5]*100
+  
+  #old vs new Plot vorbereiten
+  l1 <- hsMatrixToListForm(x_reference, "CODE")
+  l2 <- hsMatrixToListForm(x_new, "CODE")
+  names(l1)[3] <- "Simulation_Reference"
+  l1$Simulation_new <- l2$parVal
+  
+  #Plot durchf?hren und als tempor?res pdf ?ffnen
+  pdf1 <- hsPrepPdf()
+  pdf1
+  trellisobject <- xyplot(Simulation_Reference ~ Simulation_new | parName, data=l1, scales="free", panel=function(...){panel.xyplot(...);panel.abline(0, 1)})
+  plot(trellisobject)
+  dev.off()
+  hsShowPdf(pdf1)
+  
+  #Einfache Spalten-Statistik durchf?hren
+  avg_reference <- colMeans(x_reference[2:5])
+  avg_new <- colMeans(x_new[2:5])
+  avg_diff <- colMeans(abs(x_diff[1:4]))
+  avg_perc <- colMeans(x_diff_perc[1:4], na.rm = TRUE)
+  max_diff_perc <- (1:4)
+  for(i in 1:4) {
+    max_diff_perc[i] <- max(x_diff_perc[,i], na.rm = TRUE)
+  }
+  
+  diff_tab <- data.frame(name=names(x_new[2:5]), avg_Geoportal=avg_reference, avg_KWB=avg_new, 
+                         avg_diff_betrag=avg_diff, avg_diff_percent=avg_perc)
+  
+}
+
+
+ABIMO_read_output <- function # Reads two ABIMO output files
+### Reads a new ABIMO output file in dbase format.In addition the original SENSTADTUM
+### output file is read and made comparable. Alternatively two new ABIMO output files
+### can be read. Output are two comparable (same dimensions and column names) data frames.
+(
+  SENSTADTUM_dbf, 
+  ### Path of original SENSTADTUM-database
+  new_dbf
+  ### Path of new output-database
+) 
+{
+  #dbase ABIMO Output Files Laden
+  x_original <- read.dbf(SENSTADTUM_dbf)
+  x_out <- read.dbf(new_dbf)
+  
+  #Vergleich ob CODE ?bereinstimmend
+  verify_CODE <- all(x_original$CODE == x_out$CODE)
+  if(verify_CODE == TRUE) cat("CODE-Felder stimmen ?berein") else cat("CODE-Felder stimmen nicht ?berein! Ergebnisse nicht verwendbar!")
+  
+  #Reduktion der Original-Daten auf Output-Spalten
+  colnames <- names(x_out)
+  x_original_out <- x_original[,colnames]
+  
+  #Runden auf eine Dezimalstelle (um vergleichbar mit SenStadtUm-Original zu sein), aufrunden bei *.50
+  x_out[,2:9] <- x_out[,2:9] + 0.00000001
+  x_out[,2:9] <- round(x_out[,2:9],1)
+  
+  ABIMO_out <- list(SENSTADTUM = x_original_out, NEW = x_out)
+}
+
+
+
 

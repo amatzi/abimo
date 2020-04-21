@@ -1,6 +1,33 @@
-source(file = 'C:/R_Development/trunk/RScripts/_OTHERS/ABIMO_AM/ABIMO_functions_am.R')
+source("R/abimo_functions_am.R")
+
+#path official versions
+path.geoportal <- "C:/Aendu_lokal/ABIMO_Paper/Daten/Geportal"
+#path own calculation
+path.local <- "C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_output"
+
 
 #####Test ABIMO 2019 calculation----------------------------
+
+# load ABIMO 2019 no Ver (Berlin geoportal version)
+file_name <- "Wasserhaushalt_2017_ohne_Versiegelung.dbf"
+x_geoportal <- foreign::read.dbf(file.path(path.geoportal, file_name), as.is = TRUE)
+
+# load own calculation
+file_name <- "vs_2019_noimpout.dbf"
+x_own <- foreign::read.dbf(file.path(path.local, file_name), as.is = TRUE)
+
+# match order, skip SUW
+index <- match(x_geoportal$schl5, x_own$CODE)
+
+x_own_match <- x_own[index,]
+
+# match col names to compare
+names(x_geoportal) <- c("CODE", "R", "VERDUNSTUN", "ROW", "RI", names(x_geoportal[,6:16]))
+
+# compare by BTF
+diff_tab <- abimo_compare_output(x_reference = x_geoportal, x_new = x_own_match)
+
+# compare sums
 
 
 
