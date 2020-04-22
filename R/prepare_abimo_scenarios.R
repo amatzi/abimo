@@ -20,18 +20,30 @@ x_in <- foreign::read.dbf(file_ABIMO_in, as.is = TRUE)
 write.dbf.abimo(df_name = x_in, new_dbf = file.path(path_scenarios, 'vs_2019.dbf'))
 
 
-#####natural state 1, no imperviousness----------------------------
+#####natural state 0, no imperviousness, geoportal version for model testing----------------------------
 
 # no impervious areas/sewers
 
 index <- c('VG','PROBAU','PROVGU','BELAG1','BELAG2','BELAG3','BELAG4',
            'VGSTRASSE','STR_BELAG1','STR_BELAG2','STR_BELAG3','STR_BELAG4',
-           'KANAL','KAN_BEB','KAN_VGU','KAN_STR')
+           'KANAL','KAN_BEB','KAN_VGU','KAN_STR', 'STR_FLGES')
 
-x_in_noimp <- x_in
-x_in_noimp[, index] <- 0 
+x_in_noimp_geoportal <- x_in
+x_in_noimp_geoportal[, index] <- 0 
+
+write.dbf.abimo(df_name = x_in_noimp_geoportal, new_dbf = file.path(path_scenarios, 'vs_2019_noimp_geoportal.dbf'))
+
+
+
+#####natural state 1, no imperviousness, paper version----------------------------
+
+# increase area to account for streets (that were set to 0)
+
+x_in_noimp <- x_in_noimp_geoportal
+x_in_noimp$FLGES <- x_in$FLGES + x_in$STR_FLGES
 
 write.dbf.abimo(df_name = x_in_noimp, new_dbf = file.path(path_scenarios, 'vs_2019_noimp.dbf'))
+
 
 #####natural state 2, all forest----------------------------
 

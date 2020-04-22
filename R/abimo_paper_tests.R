@@ -6,14 +6,14 @@ path.geoportal <- "C:/Aendu_lokal/ABIMO_Paper/Daten/Geportal"
 path.local <- "C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_output"
 
 
-#####Test ABIMO 2019 calculation----------------------------
+#####Test ABIMO calculation----------------------------
 
 # load ABIMO 2019 no Ver (Berlin geoportal version)
 file_name <- "Wasserhaushalt_2017_ohne_Versiegelung.dbf"
 x_geoportal <- foreign::read.dbf(file.path(path.geoportal, file_name), as.is = TRUE)
 
 # load own calculation
-file_name <- "vs_2019_noimpout.dbf"
+file_name <- "vs_2019_noimp_geoportalout.dbf"
 x_own <- foreign::read.dbf(file.path(path.local, file_name), as.is = TRUE)
 
 # match order, skip SUW
@@ -27,22 +27,40 @@ names(x_geoportal) <- c("CODE", "R", "VERDUNSTUN", "ROW", "RI", names(x_geoporta
 # compare by BTF
 diff_tab <- abimo_compare_output(x_reference = x_geoportal, x_new = x_own_match)
 
-# compare sums
 
 
+######Compare Files "no Imp"----------------------------------
+
+# load Josef's input/output file
+x.josef <- foreign::read.dbf("C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_Input/Daten_Josef/abimo_171201_b_novg_ges.dbf", as.is = TRUE)
+
+# compare Josef's output to mine
+diff_outputs <- abimo_compare_output(x_reference = x.josef, x_new = x_own)
+
+# load my input file
+x.own_in <- foreign::read.dbf("C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_Input/scenarios/vs_2019_noimp.dbf", as.is = TRUE)
+
+index <- match(x.josef$CODE, x.own_in$CODE)
+x.own_in <- x.own_in[index,]
+
+#compare by colname
+
+index <- match(names(x.josef[,2:30]), names(x.own_in))
+comp_names <- names(x.own_in[,index])
 
 
-#join ABIMO 2019, output and input files
-file_ABIMO_out <- 'C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_output/abimo_2019_mitstrassenout.dbf'
-file_ABIMO_in <- 'C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_input/abimo_2019_mitstrassen.dbf'
+pdfFile <- file.path(tempdir(), "pdf_comp_input.pdf")
+kwb.utils::preparePdf(pdfFile)
 
-x.ABIMO2019.calc <- ABIMO_comb_in_out(file_ABIMO_out = file_ABIMO_out, file_ABIMO_in = file_ABIMO_in)
+for (comp in comp_names) {
+  plot(x = x.josef[[comp]][1:100], y = x.own_in[[comp]][1:100], main = comp, xlab = "reference [mm]", ylab = "new run [mm]")
+  max_value <- max(c(x.josef[[comp]][1:100], x.own_in[[comp]][1:100]), na.rm = TRUE)
+  lines(x = (0:max_value), y = (0:max_value), col = "red")
+}
 
-#order ABIMO 2019 file as official calculation on Geoportal
+dev.off()
 
-file_WHH_2019 <- 'C:/_UserProgData/GIS/Wasserhaushalt/Wasserhaushalt_2017.dbf'
-out_file <- 'C:/Aendu_lokal/ABIMO_Paper/Daten/Karten/ABIMO_output/ABIMO_2019.dbf'
+kwb.utils::hsShowPdf(pdfFile)
 
 
-x.ABIMO2019.calc <- ABIMO_adapt_map(ABIMO_out = x.ABIMO2019.new, file_georef = file_WHH_2019, out_file = out_file)
 

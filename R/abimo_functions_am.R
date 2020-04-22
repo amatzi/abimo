@@ -168,7 +168,7 @@ add_ISU5_ID <- function (
 #' @param x_reference reference data frame with ABIMO output (can be ABIMO output or downloaded from Berlin geoportal)
 #' @param x_new new ABIMO output to be compared to reference
 #' 
-#' @return data.frame of column statistics, also opens 1:1 plot as pdf
+#' @return data.frame of column statistics; plots and evaluation open as pdf 
 #'
 #' @examples
 #'
@@ -177,41 +177,52 @@ abimo_compare_output <- function (
   x_new
 )
 {
+  #Ordnen nach CODE
+  index <- match(x_reference$CODE, x_new$CODE)
+  x_new <- x_new[index,]
+  
   #Reduktion auf Vergleichs-Spalten
-  comp_names <- c("CODE", "R", "VERDUNSTUN", "ROW", "RI")
+  comp_names <- c("VERDUNSTUN", "ROW", "RI")
   x_reference <- x_reference[,comp_names]
   x_new <- x_new[,comp_names]
   
   #Berechnen der absoluten und prozentualen Differenz aller numerischen Spalten
-  x_diff <- x_reference[2:5]-x_new[2:5]
-  x_diff_perc <- abs(x_diff[1:4])/x_reference[2:5]*100
-  
-  #old vs new Plot vorbereiten
-  l1 <- hsMatrixToListForm(x_reference, "CODE")
-  l2 <- hsMatrixToListForm(x_new, "CODE")
-  names(l1)[3] <- "Simulation_Reference"
-  l1$Simulation_new <- l2$parVal
-  
-  #Plot durchf?hren und als tempor?res pdf ?ffnen
-  pdf1 <- hsPrepPdf()
-  pdf1
-  trellisobject <- xyplot(Simulation_Reference ~ Simulation_new | parName, data=l1, scales="free", panel=function(...){panel.xyplot(...);panel.abline(0, 1)})
-  plot(trellisobject)
-  dev.off()
-  hsShowPdf(pdf1)
+  x_diff <- x_reference-x_new
+  x_diff_perc <- abs(x_diff)/x_reference*100
   
   #Einfache Spalten-Statistik durchf?hren
-  avg_reference <- colMeans(x_reference[2:5])
-  avg_new <- colMeans(x_new[2:5])
-  avg_diff <- colMeans(abs(x_diff[1:4]))
-  avg_perc <- colMeans(x_diff_perc[1:4], na.rm = TRUE)
-  max_diff_perc <- (1:4)
-  for(i in 1:4) {
+  avg_reference <- colMeans(x_reference)
+  avg_new <- colMeans(x_new)
+  avg_diff <- colMeans(abs(x_diff))
+  avg_perc <- colMeans(x_diff_perc, na.rm = TRUE)
+  max_diff_perc <- (1:3)
+  for(i in 1:3) {
     max_diff_perc[i] <- max(x_diff_perc[,i], na.rm = TRUE)
   }
   
-  diff_tab <- data.frame(name=names(x_new[2:5]), avg_Geoportal=avg_reference, avg_KWB=avg_new, 
-                         avg_diff_betrag=avg_diff, avg_diff_percent=avg_perc)
+  diff_tab <- data.frame(name=names(x_new), avg_Geoportal=avg_reference, avg_KWB=avg_new, 
+                         avg_diff_betrag=avg_diff, avg_diff_percent=avg_perc, row.names = NULL)
+  
+  #results in pdf
+  pdfFile <- file.path(tempdir(), "pdf_compare_abimo.pdf")
+  kwb.utils::preparePdf(pdfFile)
+  
+  #table
+  gridExtra::grid.table(diff_tab)
+  
+  #old vs new Plot 
+  for (comp in comp_names) {
+    plot(x = x_reference[[comp]], y = x_new[[comp]], main = comp, xlab = "reference [mm]", ylab = "new run [mm]")
+    max_value <- max(c(x_reference[[comp]], x_new[[comp]]))
+    lines(x = (0:max_value), y = (0:max_value), col = "red")
+  }
+  
+  dev.off()
+  
+  kwb.utils::hsShowPdf(pdfFile)
+  
+  #output table
+  diff_tab
   
 }
 
