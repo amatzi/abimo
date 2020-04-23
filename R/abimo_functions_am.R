@@ -54,7 +54,7 @@ ABIMO_adapt_map <- function (
 #'
 #' @examples
 #'
-ABIMO_comb_in_out <- function (
+abimo_comb_in_out <- function (
   file_ABIMO_out,
   file_ABIMO_in
 )
@@ -76,7 +76,7 @@ ABIMO_comb_in_out <- function (
   x <- x[index,]
   
   #combine the two files
-  x.out <- cbind(y, x)
+  x.out <- cbind(y, x[,-1])
   
   
   x.out
@@ -258,5 +258,31 @@ ABIMO_read_output <- function # Reads two ABIMO output files
 }
 
 
-
+#' calculate groundwater recharge and interflow 
+#'
+#' uses correction factor to calculate groundwater recharge
+#' from infiltration RI. Difference is interflow.
+#' Requires a combined data.frame of ABIMO output and input,
+#' e.g. by using function "abimo_comb_in_out"
+#' 
+#' @param abimo_df data.frame of ABIMO output file, merged with input file
+#' 
+#' @return input data.frame with two new columns "RI_K" and "INTERF"
+#'
+#' @examples
+#'
+abimo_grwater_interflow <- function (
+  abimo_df
+)
+{
+  
+  #calculate groundwater recharge
+  abimo_df$RI_K <- abimo_df$RI * abimo_df$KOR_FL_N
+  
+  #calculate interflow
+  abimo_df$INTERF <- abimo_df$RI - abimo_df$RI_K
+  
+ abimo_df
+  
+}
 
