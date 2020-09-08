@@ -17,7 +17,7 @@ file_ABIMO_in <- 'C:/Aendu_lokal/ABIMO_Paper/Daten/ABIMO_input/abimo_2019_mitstr
 x_in <- foreign::read.dbf(file_ABIMO_in, as.is = TRUE)
 
 #write 2019 basic scenario
-write.dbf.abimo(df_name = x_in, new_dbf = file.path(path_scenarios, 'vs_2019.dbf'))
+write.dbf.abimo(df_name = x_in, new_dbf = file.path(path_scenarios, 'vs_2019/vs_2019.dbf'))
 
 
 #####natural state 0, no imperviousness, geoportal version for model testing----------------------------
@@ -34,7 +34,6 @@ x_in_noimp_geoportal[, index] <- 0
 write.dbf.abimo(df_name = x_in_noimp_geoportal, new_dbf = file.path(path_scenarios, 'vs_2019_noimp_geoportal.dbf'))
 
 
-
 #####natural state 1, no imperviousness, paper version----------------------------
 
 # increase area to account for streets (that were set to 0)
@@ -42,7 +41,10 @@ write.dbf.abimo(df_name = x_in_noimp_geoportal, new_dbf = file.path(path_scenari
 x_in_noimp <- x_in_noimp_geoportal
 x_in_noimp$FLGES <- x_in$FLGES + x_in$STR_FLGES
 
-write.dbf.abimo(df_name = x_in_noimp, new_dbf = file.path(path_scenarios, 'vs_2019_noimp.dbf'))
+write.dbf.abimo(df_name = x_in_noimp, new_dbf = file.path(path_scenarios, 'vs_2019_noimp/vs_2019_noimp.dbf'))
+
+#changed config.xml to cancel out irrigation (BER=false)
+abimo_xml_BER(file_out = file.path(path_scenarios, 'vs_2019_noimp/config.xml'))
 
 
 #####natural state 2, all forest----------------------------
@@ -66,9 +68,9 @@ x_in_forest <- x_in_noimp
 x_in_forest$NUTZUNG[-index_SUW] <- typ_nutz_wald
 x_in_forest$TYP[-index_SUW] <- typ_struktur_wald
 
-write.dbf.abimo(df_name = x_in_forest, new_dbf = file.path(path_scenarios, 'vs_2019_forest.dbf'))
+write.dbf.abimo(df_name = x_in_forest, new_dbf = file.path(path_scenarios, 'vs_2019_forest/vs_2019_forest.dbf'))
 
-######climate, single years 1991-2019
+######climate, single years 1991-2019-----------------------------
 
 # load annual climate data
 climate_data <- read.csv(file.path(path_data, "ABIMO_climate_data.csv"))
@@ -76,11 +78,12 @@ climate_data <- read.csv(file.path(path_data, "ABIMO_climate_data.csv"))
 #result_df
 x_in_year <- x_in
 
-#create one dbf input file per year
+#create one dbf input file and one config.xml per year
 for (i in seq_along(climate_data$year)) {
   
-  x_in_year$REGENJA <- climate_data$rain_yr[i]
-  x_in_year$REGENSO <- climate_data$rain_sum[i]
+  #exchange rain data 
+  x_in_year$REGENJA <- as.integer(round(climate_data$rain_yr[i], digits = 0))
+  x_in_year$REGENSO <- as.integer(round(climate_data$rain_sum[i], digits = 0))
   
   dbf_name <- paste0("x_in_", climate_data$year[i], ".dbf")
   dbf_path <- paste0(path_scenarios, "climate_", climate_data$year[i])
@@ -90,7 +93,14 @@ for (i in seq_along(climate_data$year)) {
     dir.create(file.path(dbf_path))
   }
   
+  #write dbf file with changed rain data
   write.dbf.abimo(df_name = x_in_year, new_dbf = file.path(dbf_path, dbf_name))
+  
+  #write config.xml with changed potential evaporation data
+  abimo_xml_evap(file_out = file.path(dbf_path, "config.xml"), 
+                 evap_annual = round(climate_data$pot_ev_yr[i], digits = 0),
+                 evap_summer = round(climate_data$pot_ev_sum[i], digits = 0))
+  
   
 }
 
