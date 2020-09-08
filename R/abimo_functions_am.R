@@ -286,3 +286,130 @@ abimo_grwater_interflow <- function (
   
 }
 
+
+#' change "BERtoZero"-settings in Abimo config.xml to true
+#'
+#' as default irrigation of pervious areas 
+#' is assumed based on "Nutzung" and "Typ".
+#' This function turns of irrigation for all areas
+#' (BERtoZero = true) 
+#'
+#' @param file_in path and file name of abimo xml-input file, default is "data/config.xml"
+#' @param file_out path and file name to write changed abimo xml-input file
+#' @param line_BER line number in xml-file, where BERtoZero is defined, default is 56
+#' 
+#' @return abimo xml-input file with changed BERtoZero-setting
+#'
+#' @examples
+#'
+abimo_xml_BER <- function (
+  file_in = "data/config.xml",
+  file_out,
+  line_BER = 56
+)
+{
+  #read abimo xml file as lines
+  textlines <- readLines(file_in)
+  
+  #change BER setting
+  textlines[line_BER] <- gsub(pattern = "false", replacement = "true", textlines[line_BER])
+  
+  writeLines(textlines, con = file_out)
+}  
+  
+
+
+#' change potential evaporation in Abimo config.xml
+#'
+#' potential evaporation (annual and summer) 
+#' is a boundary condition defined in config.xml.
+#' This function sets potential evaporation
+#' to a given value for all surfaces (except lakes and rivers)
+#'
+#' @param file_in path and file name of abimo xml-input file, default is "data/config.xml"
+#' @param file_out path and file name to write changed abimo xml-input file
+#' @param line_evap line number(s) with information on potential evaporation
+#' @param evap_annual annual potential evaporation
+#' @param evap_summer potential evaporation for summer months
+#' 
+#' @return abimo xml-input file with changed potential evaporation
+#'
+#' @examples
+#'
+abimo_xml_evap <- function (
+  file_in = "data/config.xml",
+  file_out,
+  line_evap = c(42:46, 49),
+  evap_annual,
+  evap_summer
+)
+{
+  #read abimo xml file as lines
+  textlines <- readLines(file_in)
+  
+  #change evap settings
+  
+  textlines[line_evap[1]] <- gsub(pattern = "620", replacement = evap_annual, textlines[line_evap[1]])
+  textlines[line_evap[1]] <- gsub(pattern = "500", replacement = evap_summer, textlines[line_evap[1]])
+  
+  textlines[line_evap[2]] <- gsub(pattern = "630", replacement = evap_annual, textlines[line_evap[2]])
+  textlines[line_evap[2]] <- gsub(pattern = "505", replacement = evap_summer, textlines[line_evap[2]])
+  
+  textlines[line_evap[3]] <- gsub(pattern = "640", replacement = evap_annual, textlines[line_evap[3]])
+  textlines[line_evap[3]] <- gsub(pattern = "515", replacement = evap_summer, textlines[line_evap[3]])
+  
+  textlines[line_evap[4]] <- gsub(pattern = "650", replacement = evap_annual, textlines[line_evap[4]])
+  textlines[line_evap[4]] <- gsub(pattern = "520", replacement = evap_summer, textlines[line_evap[4]])
+  
+  textlines[line_evap[5]] <- gsub(pattern = "660", replacement = evap_annual, textlines[line_evap[5]])
+  textlines[line_evap[5]] <- gsub(pattern = "530", replacement = evap_summer, textlines[line_evap[5]])
+  
+  textlines[line_evap[6]] <- gsub(pattern = "660", replacement = evap_annual, textlines[line_evap[6]])
+  textlines[line_evap[6]] <- gsub(pattern = "530", replacement = evap_summer, textlines[line_evap[6]])
+  
+  writeLines(textlines, con = file_out)
+}  
+
+
+#' calculate Berlin average of water balance terms 
+#'
+#' multiplies each water balance component
+#' by area, sums them up and divides the sum
+#' by the total surface
+#' 
+#' @param abimo_df data.frame of ABIMO output file, merged with input file
+#' 
+#' @return table with averages in mm of water balance components 
+#'
+#' @examples
+#'
+abimo_Berlin_average <- function (
+  abimo_df
+)
+{
+  
+  #output table
+  x_out <- data.frame("evaporation" = NA,
+                      "infiltration" = NA,
+                      "interflow" = NA,
+                      "runoff" = NA)
+  
+  #calculate volumes by BTF
+  abimo_df$evaporation <- abimo_df$VERDUNSTUN * abimo_df$FLAECHE
+  abimo_df$infiltration <- abimo_df$RI_K * abimo_df$FLAECHE
+  abimo_df$interflow <- abimo_df$INTERF * abimo_df$FLAECHE
+  abimo_df$runoff <- abimo_df$ROW * abimo_df$FLAECHE
+  
+  #averages
+  for (comp_wb in colnames(x_out)) {
+    
+    x_out[[comp_wb]][1] <- sum(abimo_df[[comp_wb]]) / sum(abimo_df$FLAECHE)
+    
+  }
+  
+ x_out
+  
+}
+
+
+  
