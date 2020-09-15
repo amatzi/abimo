@@ -28,9 +28,9 @@ ABIMO_adapt_map <- function (
   
   
   #match polygons
-  index <- match(y$schl5, x$CODE)
+  index <- match(y$SCHLUESSEL, x$CODE)
   x.out <- x[index,]
-  if(length(x$CODE) > length(y$schl5)) {
+  if(length(x$CODE) > length(y$SCHLUESSEL)) {
     print('Warning: some polygons without matching geometry')
   }
   
