@@ -117,7 +117,7 @@ for (subs in OgRe_conc_SPUR$VariableName) {
 
 x_comb_SPUR_map <- ABIMO_adapt_map(ABIMO_out = x_comb_SPUR, 
                 out_file = file.path(path_scenarios_out, 'vs_2019_SPUR.dbf'),
-                file_georef = "C:/Aendu_lokal/ABIMO_Paper/Daten/Karten/Basis_ISU5_Daten_2015/ISU5_ID.dbf")
+                file_georef = "C:/Aendu_lokal/ABIMO_Paper/Daten/Karten/Basis_ISU5_Daten_2015/ISU5_ID.dbf")  
 
 
 
